@@ -1,6 +1,6 @@
 
 require("dotenv").config();
-var spotifyKey = require("./keys.js");
+var keys = require("./keys");
 var Spotify = require('node-spotify-api');
 var request = require('request');
 var omdb = require('omdb');
@@ -8,14 +8,39 @@ var fs = require("fs");
 var APP_ID = "codingbootcamp"
 var bandsintown = require('bandsintown')(APP_ID);
 var spotify = new Spotify({
-    id: process.env.Spotify_ID,
-    secret: process.env.Spotify_SECRET});
+    id: keys.spotify.id,
+    secret: keys.spotify.secret});
 var userInput = process.argv[2];
-var secondInput = process.argv[3];
+// var secondInput = process.argv[3];
+var secondInput = process.argv.slice(3).join(' ');;
+
 var queryUrl = "http://www.omdbapi.com/?t=" + secondInput + "&y=&plot=short&apikey=trilogy";
 var nobodyUrl = "http://www.omdbapi.com/?t=mr+nobody&y=&plot=short&apikey=trilogy";
 var bandUrl = "https://rest.bandsintown.com/artists/" + secondInput + "/events?app_id=codingbootcamp";
 
+function runBands() {
+    // console.log(bandUrl);
+    // request(bandUrl, function(error, response, body) {
+    // if (!error && response.statusCode === 200) {
+    //     console.log(body)
+    //     // console.log("Title: " + JSON.parse(body).Title);
+    //     // console.log("Release Year: " + JSON.parse(body).Year);
+    //     // console.log("IMDB rating: " + JSON.parse(body).Ratings[0].Value);
+    //     // console.log("Rotten Tomatoes rating: " + JSON.parse(body).Ratings[1].Value);
+    //     // console.log("Country: " + JSON.parse(body).Country);
+    //     // console.log("Language: " + JSON.parse(body).Language);
+    //     // console.log("Plot: " + JSON.parse(body).Plot);
+    //     // console.log("Actors: " + JSON.parse(body).Actors);
+    //     }
+    // });
+    bandsintown
+// request
+  .getArtistEventList(secondInput)
+  .then(function(events) {
+    // return array of events
+    console.log(events);
+  });
+}
 
 if (userInput === "concert-this"){
     runBands();
@@ -94,7 +119,8 @@ function spotifySong() {
         }       
     //   console.log(JSON.stringify(data));
     // console.log(data.tracks.items[0].artists); 
-    console.log("Artist: " + data);
+    console.log(data.tracks.items[0].album.album_type.name);
+    console.log("Artist: " + data.tracks.items[0].artists[0].name);
     console.log("Song: " + data);
     console.log("Preview Link: " + data);
     console.log("Album: " + data);
@@ -145,15 +171,7 @@ function mrNobody () {
     });
 }
 
-function runBands() {
-    bandsintown
-// request
-  .getArtistEventList('Skrillex')
-  .then(function(events) {
-    // return array of events
-    console.log(events);
-  });
-}
+
 
 function doIt(){
     fs.readFile("random.txt", "utf8", function(err, data) {
