@@ -93,8 +93,12 @@ function spotifySong() {
           return console.log('Error occurred: ' + err);
         }       
     //   console.log(JSON.stringify(data));
-    //   console.log(JSON.stringify(data.name)); 
-    console.log(JSON.stringify(data)); 
+    // console.log(data.tracks.items[0].artists); 
+    console.log("Artist: " + data);
+    console.log("Song: " + data);
+    console.log("Preview Link: " + data);
+    console.log("Album: " + data);
+
     });
 };
 
@@ -105,7 +109,7 @@ function presetSong() {
         }       
     //   console.log(JSON.stringify(data));
     //   console.log(JSON.stringify(data.name)); 
-    console.log(JSON.stringify(data)); 
+    console.log(JSON.stringify(data.tracks.items[0])); 
     });
 };
 
