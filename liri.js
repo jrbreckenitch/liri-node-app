@@ -3,6 +3,8 @@ require("dotenv").config();
 var keys = require("./keys");
 var Spotify = require('node-spotify-api');
 var request = require('request');
+var moment = require('moment');
+// var m = moment();
 // var omdb = require('omdb');
 var fs = require("fs");
 var APP_ID = "codingbootcamp"
@@ -22,16 +24,19 @@ if (userInput === "concert-this"){
 }
 
 // spotify-this-song
-if (userInput === "spotify-this-song") {
+if (userInput === "spotify-this-song" && secondInput != "") {
     spotifySong();
-}    
-// } else if (userInput === "spotify-this-song" && secondInput != true) {
-
-// }
-// movie-this
-if (userInput === "movie-this") {
-    findMovie();
+}  else if (userInput === "spotify-this-song" && secondInput == "") {
+    presetSong();
 }
+
+// movie-this
+if (userInput === "movie-this" && secondInput != "") {
+    findMovie();
+} else if (userInput === "movie-this" && secondInput == "") {
+    mrNobody();
+}
+
 // do-what-it-says
 if (userInput === "do-what-it-says") {
     doIt();
@@ -78,7 +83,6 @@ function findMovie() {
 };
 
 function mrNobody () {
-    console.log(nobodyUrl);
     request(nobodyUrl, function(error, response, body) {
     if (!error && response.statusCode === 200) {
         console.log("Title: " + JSON.parse(body).Title);
@@ -98,9 +102,14 @@ function runBands() {
 // request
     .getArtistEventList(secondInput)
     .then(function(events) {
+    // var date = moment(events[0].datetime);
+    // moment(date).isValid();
     console.log(events[0].venue.name);
     console.log(events[0].venue.city + ', ' + events[0].venue.region);
     console.log(events[0].datetime);
+    // 2018-09-15T19:30:00
+    // console.log(events[0].datetime.utc('2013-09-15', 'HH:mm:ss').format('MM/DD/YYYY'));
+    // console.log(events[0].datetime.moment().format('MM/DD/YYYY'));
 });
 }
 
@@ -109,17 +118,12 @@ function doIt(){
         if (err) {
           return console.log(err);
         }    
-        // Break down all the numbers inside
-        data = data.split(", ");
-        data[0] = userInput;
-        data[1] = secondInput;
+        // splitting data and assigning new variables
+        data = data.split(",");
+        userInput = data[0];
+        secondInput = data[1];
+        spotifySong();
     });
-
-    presetSong();
-
-    // if (userInput === "spotify-this-song" && secondInput != true){
-    //     presetSong();
-    // }
 }
 
 
