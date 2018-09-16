@@ -3,7 +3,7 @@ require("dotenv").config();
 var keys = require("./keys");
 var Spotify = require('node-spotify-api');
 var request = require('request');
-var omdb = require('omdb');
+// var omdb = require('omdb');
 var fs = require("fs");
 var APP_ID = "codingbootcamp"
 var bandsintown = require('bandsintown')(APP_ID);
@@ -11,40 +11,118 @@ var spotify = new Spotify({
     id: keys.spotify.id,
     secret: keys.spotify.secret});
 var userInput = process.argv[2];
-// var secondInput = process.argv[3];
 var secondInput = process.argv.slice(3).join(' ');;
-
 var queryUrl = "http://www.omdbapi.com/?t=" + secondInput + "&y=&plot=short&apikey=trilogy";
 var nobodyUrl = "http://www.omdbapi.com/?t=mr+nobody&y=&plot=short&apikey=trilogy";
-var bandUrl = "https://rest.bandsintown.com/artists/" + secondInput + "/events?app_id=codingbootcamp";
+// var bandUrl = "https://rest.bandsintown.com/artists/" + secondInput + "/events?app_id=codingbootcamp";
 
-function runBands() {
-    // console.log(bandUrl);
-    // request(bandUrl, function(error, response, body) {
-    // if (!error && response.statusCode === 200) {
-    //     console.log(body)
-    //     // console.log("Title: " + JSON.parse(body).Title);
-    //     // console.log("Release Year: " + JSON.parse(body).Year);
-    //     // console.log("IMDB rating: " + JSON.parse(body).Ratings[0].Value);
-    //     // console.log("Rotten Tomatoes rating: " + JSON.parse(body).Ratings[1].Value);
-    //     // console.log("Country: " + JSON.parse(body).Country);
-    //     // console.log("Language: " + JSON.parse(body).Language);
-    //     // console.log("Plot: " + JSON.parse(body).Plot);
-    //     // console.log("Actors: " + JSON.parse(body).Actors);
-    //     }
-    // });
-    bandsintown
-// request
-  .getArtistEventList(secondInput)
-  .then(function(events) {
-    // return array of events
-    console.log(events);
-  });
-}
-
+// concert-this
 if (userInput === "concert-this"){
     runBands();
 }
+
+// spotify-this-song
+if (userInput === "spotify-this-song") {
+    spotifySong();
+}    
+// } else if (userInput === "spotify-this-song" && secondInput != true) {
+
+// }
+// movie-this
+if (userInput === "movie-this") {
+    findMovie();
+}
+// do-what-it-says
+if (userInput === "do-what-it-says") {
+    doIt();
+};
+
+function spotifySong() {
+    spotify.search({ type: 'track', query: secondInput, limit: 1}, function(err, data) {
+        if (err) {
+          return console.log('Error occurred: ' + err);
+        }       
+    //   console.log(JSON.stringify(data));
+    console.log("Artist: " + data.tracks.items[0].artists[0].name);
+    console.log("Song: " + data.tracks.items[0].name);
+    console.log("Preview Link: " + data.tracks.items[0].preview_url);
+    console.log("Album: " + data.tracks.items[0].album.name);
+    });
+};
+
+function presetSong() {
+    spotify.search({ type: 'track', query: 'I want it That Way', limit: 1}, function(err, data) {
+        if (err) {
+          return console.log('Error occurred: ' + err);
+        }       
+        console.log("Artist: " + data.tracks.items[0].artists[0].name);
+        console.log("Song: " + data.tracks.items[0].name);
+        console.log("Preview Link: " + data.tracks.items[0].preview_url);
+        console.log("Album: " + data.tracks.items[0].album.name);
+    });
+};
+
+function findMovie() {
+    request(queryUrl, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+        console.log("Title: " + JSON.parse(body).Title);
+        console.log("Release Year: " + JSON.parse(body).Year);
+        console.log("IMDB rating: " + JSON.parse(body).Ratings[0].Value);
+        console.log("Rotten Tomatoes rating: " + JSON.parse(body).Ratings[1].Value);
+        console.log("Country: " + JSON.parse(body).Country);
+        console.log("Language: " + JSON.parse(body).Language);
+        console.log("Plot: " + JSON.parse(body).Plot);
+        console.log("Actors: " + JSON.parse(body).Actors);
+        }
+    });
+};
+
+function mrNobody () {
+    console.log(nobodyUrl);
+    request(nobodyUrl, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+        console.log("Title: " + JSON.parse(body).Title);
+        console.log("Release Year: " + JSON.parse(body).Year);
+        console.log("IMDB rating: " + JSON.parse(body).Ratings[0].Value);
+        console.log("Rotten Tomatoes rating: " + JSON.parse(body).Ratings[1].Value);
+        console.log("Country: " + JSON.parse(body).Country);
+        console.log("Language: " + JSON.parse(body).Language);
+        console.log("Plot: " + JSON.parse(body).Plot);
+        console.log("Actors: " + JSON.parse(body).Actors);
+        }
+    });
+}
+
+function runBands() {
+    bandsintown
+// request
+    .getArtistEventList(secondInput)
+    .then(function(events) {
+    console.log(events[0].venue.name);
+    console.log(events[0].venue.city + ', ' + events[0].venue.region);
+    console.log(events[0].datetime);
+});
+}
+
+function doIt(){
+    fs.readFile("random.txt", "utf8", function(err, data) {
+        if (err) {
+          return console.log(err);
+        }    
+        // Break down all the numbers inside
+        data = data.split(", ");
+        data[0] = userInput;
+        data[1] = secondInput;
+    });
+
+    presetSong();
+
+    // if (userInput === "spotify-this-song" && secondInput != true){
+    //     presetSong();
+    // }
+}
+
+
 // function runOMDB() {
 // // request
 //   omdb.search(secondInput, function(err, movies) {
@@ -89,10 +167,21 @@ if (userInput === "concert-this"){
 // var queryUrl = "http://www.omdbapi.com/?t=" + secondInput + "&y=&plot=short&apikey=trilogy";
 // var bandUrl = "https://rest.bandsintown.com/artists/" + secondInput + "/events?app_id=codingbootcamp";
 
-// // spotify-this-song
-else if (userInput === "spotify-this-song") {
+// console.log(bandUrl);
+    // request(bandUrl, function(error, response, body) {
+    // if (!error && response.statusCode === 200) {
+    //     console.log(body)
+    //     // console.log("Title: " + JSON.parse(body).Title);
+    //     // console.log("Release Year: " + JSON.parse(body).Year);
+    //     // console.log("IMDB rating: " + JSON.parse(body).Ratings[0].Value);
+    //     // console.log("Rotten Tomatoes rating: " + JSON.parse(body).Ratings[1].Value);
+    //     // console.log("Country: " + JSON.parse(body).Country);
+    //     // console.log("Language: " + JSON.parse(body).Language);
+    //     // console.log("Plot: " + JSON.parse(body).Plot);
+    //     // console.log("Actors: " + JSON.parse(body).Actors);
+    //     }
+    // });
 
-    spotifySong();
     // spotify
     // .request('https://api.spotify.com/v1/tracks/7yCPwWs66K8Ba5lFuU2bcx')
     // .then(function(data) {
@@ -102,89 +191,23 @@ else if (userInput === "spotify-this-song") {
     //     console.error('Error occurred: ' + err); 
     //   });
 
-}
-// // movie-this
-else if (userInput === "movie-this") {
-    findMovie();
-}
-// // do-what-it-says
-else if (userInput === "do-what-it-says") {
-    doIt();
-};
+    // return array of events
+    // console.log(events);
+//     if (secondInput !== true) {
+//         console.log(`We could not find dates for ${secondInput}.`)
+//     } else {
+//     console.log(events[0].venue.name);
+//     console.log(events[0].venue.city + ', ' + events[0].venue.region);
+//     console.log(events[0].datetime);
+//     }   
+//   });
 
-function spotifySong() {
-    spotify.search({ type: 'track', query: secondInput, limit: 1}, function(err, data) {
-        if (err) {
-          return console.log('Error occurred: ' + err);
-        }       
-    //   console.log(JSON.stringify(data));
-    // console.log(data.tracks.items[0].artists); 
-    console.log(data.tracks.items[0].album.album_type.name);
-    console.log("Artist: " + data.tracks.items[0].artists[0].name);
-    console.log("Song: " + data);
-    console.log("Preview Link: " + data);
-    console.log("Album: " + data);
-
-    });
-};
-
-function presetSong() {
-    spotify.search({ type: 'track', query: 'I want it That Way', limit: 1}, function(err, data) {
-        if (err) {
-          return console.log('Error occurred: ' + err);
-        }       
-    //   console.log(JSON.stringify(data));
-    //   console.log(JSON.stringify(data.name)); 
-    console.log(JSON.stringify(data.tracks.items[0])); 
-    });
-};
-
-function findMovie() {
-    console.log(queryUrl);
-    request(queryUrl, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-        console.log("Title: " + JSON.parse(body).Title);
-        console.log("Release Year: " + JSON.parse(body).Year);
-        console.log("IMDB rating: " + JSON.parse(body).Ratings[0].Value);
-        console.log("Rotten Tomatoes rating: " + JSON.parse(body).Ratings[1].Value);
-        console.log("Country: " + JSON.parse(body).Country);
-        console.log("Language: " + JSON.parse(body).Language);
-        console.log("Plot: " + JSON.parse(body).Plot);
-        console.log("Actors: " + JSON.parse(body).Actors);
-        }
-    });
-};
-
-function mrNobody () {
-    console.log(nobodyUrl);
-    request(nobodyUrl, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-        console.log("Title: " + JSON.parse(body).Title);
-        console.log("Release Year: " + JSON.parse(body).Year);
-        console.log("IMDB rating: " + JSON.parse(body).Ratings[0].Value);
-        console.log("Rotten Tomatoes rating: " + JSON.parse(body).Ratings[1].Value);
-        console.log("Country: " + JSON.parse(body).Country);
-        console.log("Language: " + JSON.parse(body).Language);
-        console.log("Plot: " + JSON.parse(body).Plot);
-        console.log("Actors: " + JSON.parse(body).Actors);
-        }
-    });
-}
-
-
-
-function doIt(){
-    fs.readFile("random.txt", "utf8", function(err, data) {
-        if (err) {
-          return console.log(err);
-        }    
-        // Break down all the numbers inside
-        data = data.split(", ");
-        data[0] = userInput;
-        data[1] = secondInput;
-    });
-
-    if (userInput === "spotify-this-song"){
-        presetSong();
-    }
-}
+// console.log(bandUrl);
+    // request(bandUrl, function(error, response, events) {
+    // if (!error && response.statusCode === 200) {
+    //     // console.log(events)
+    //     console.log(events.offers.type);
+    //     // console.log(events[0].venue.city + ', ' + events[0].venue.region);
+    //     // console.log(events[0].datetime);
+    //     }
+    // });
